@@ -7,7 +7,6 @@ defmodule Hauvahti.Router do
 
   scope "/", Hauvahti do
     pipe_through :api
-
-    resources "/metrics", MetricsController, only: [:create]
+    post "/metrics/:token", MetricsController, :create
   end
 end
