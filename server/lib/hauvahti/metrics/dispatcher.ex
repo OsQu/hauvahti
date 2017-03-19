@@ -3,8 +3,8 @@
 defmodule Hauvahti.Metrics.Dispatcher do
   use GenServer
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, [])
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, :ok, name: name)
   end
 
   ## Client actions
@@ -46,7 +46,7 @@ defmodule Hauvahti.Metrics.Dispatcher do
 
   defp ensure_metrics_bucket(metrics_buckets, user) do
     case Map.fetch(metrics_buckets, user) do
-      {:ok, metrics_bucket} -> metrics_bucket
+      {:ok, _} -> metrics_buckets
       :error ->
         {:ok, metrics_bucket} = Hauvahti.Metrics.Bucket.start_link
         Map.put(metrics_buckets, user, metrics_bucket)
