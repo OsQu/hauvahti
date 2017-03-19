@@ -11,12 +11,12 @@ defmodule Hauvahti.MetricsControllerTest do
 
 
   describe "authentication for POST /metrics" do
-    test "allows requests with correct token", context do
+    test "allows requests with correct token", %{token: token} do
       response = build_conn()
-      |> post(metrics_path(build_conn(), :create, context[:token]))
-      |> json_response(200)
+      |> post(metrics_path(build_conn(), :create, token))
+      |> json_response(202)
 
-      assert response == %{"hello" => "world"}
+      assert response == %{"message" => "Accepted"}
     end
 
     test "denies requests with invalid token" do
@@ -26,5 +26,8 @@ defmodule Hauvahti.MetricsControllerTest do
 
       assert response == %{"error" => "Access denied"}
     end
+  end
+
+  describe "sending metrics to submodule" do
   end
 end

@@ -6,7 +6,9 @@ defmodule Hauvahti.MetricsController do
   plug :authenticate
 
   def create(conn, _params) do
-    json conn, %{hello: "world"}
+    conn
+    |> put_status(202)
+    |> json(%{"message": "Accepted"})
   end
 
   defp authenticate(%{params: %{"token" => token}} = conn, _params) do
