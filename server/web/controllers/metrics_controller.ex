@@ -14,7 +14,7 @@ defmodule Hauvahti.MetricsController do
   end
 
   def create(conn, params) do
-    Store.dispatch(Store, conn.assigns[:user].id, params["events"])
+    Store.save(Store, conn.assigns[:user].id, params["events"])
 
     conn
     |> put_status(202)

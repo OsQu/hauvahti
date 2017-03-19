@@ -9,15 +9,15 @@ defmodule Hauvahti.Metrics.StoreTest do
   end
 
   test "dispatching metrics for new user", %{store: store} do
-    Store.dispatch(store, 1, "sound=10")
+    Store.save(store, 1, "sound=10")
     metrics = Store.metrics(store, 1)
 
     assert metrics == %{"sound" => [10]}
   end
 
   test "dispatching metrics for existing user", %{store: store} do
-    Store.dispatch(store, 1, "sound=10")
-    Store.dispatch(store, 1, "sound=5")
+    Store.save(store, 1, "sound=10")
+    Store.save(store, 1, "sound=5")
 
     metrics = Store.metrics(store, 1)
 
@@ -25,11 +25,11 @@ defmodule Hauvahti.Metrics.StoreTest do
   end
 
   test "dispatching metrics for multiple users", %{store: store} do
-    Store.dispatch(store, 1, "sound=10")
-    Store.dispatch(store, 2, "humidity=10")
-    Store.dispatch(store, 2, "sound=5")
-    Store.dispatch(store, 2, "sound=10")
-    Store.dispatch(store, 1, "sound=10")
+    Store.save(store, 1, "sound=10")
+    Store.save(store, 2, "humidity=10")
+    Store.save(store, 2, "sound=5")
+    Store.save(store, 2, "sound=10")
+    Store.save(store, 1, "sound=10")
 
     assert Store.metrics(store, 1) == %{"sound" => [10,10]}
     assert Store.metrics(store, 2) == %{"sound" => [10,5], "humidity" => [10]}

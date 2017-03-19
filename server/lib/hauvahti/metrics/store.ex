@@ -9,7 +9,7 @@ defmodule Hauvahti.Metrics.Store do
 
   ## Client actions
 
-  def dispatch(server, user, events) do
+  def save(server, user, events) do
     GenServer.cast(server, {:store_events, user, events})
   end
 
