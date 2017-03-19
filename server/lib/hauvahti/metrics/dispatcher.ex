@@ -31,8 +31,6 @@ defmodule Hauvahti.Metrics.Dispatcher do
   end
 
   def handle_cast({:dispatch_metrics, user, metrics}, metrics_buckets) do
-    IO.puts "Handle cast: user #{user}, metrics #{metrics}"
-
     metrics_buckets = ensure_metrics_bucket(metrics_buckets, user)
 
     metrics_buckets
