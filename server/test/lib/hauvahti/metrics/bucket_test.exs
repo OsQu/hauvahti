@@ -26,6 +26,14 @@ defmodule Hauvahti.Metrics.BucketTest do
     assert returned_events == [5,20,10]
   end
 
+  test "registering multiple events at once", %{bucket: bucket} do
+    events = ["sound=10", "volume=20", "sound=10"]
+    Bucket.register(bucket, Enum.join(events, "\n"))
+
+    assert Bucket.get(bucket, "sound") == [10, 10]
+    assert Bucket.get(bucket, "volume") == [20]
+  end
+
   test "fetching events for non-existing metrics type", %{bucket: bucket} do
     returned_events = Bucket.get(bucket, "foobar")
     assert returned_events == nil
