@@ -2,19 +2,19 @@ defmodule Hauvahti.MetricsController do
   use Hauvahti.Web, :controller
 
   alias Hauvahti.User
-  alias Hauvahti.Metrics.{Store,Dispatcher}
+  alias Hauvahti.Metrics
 
   plug :authenticate
 
   def index(conn, _params) do
-    case Store.metrics(Store, conn.assigns[:user].id) do
+    case Metrics.fetch(conn.assigns[:user].id) do
       metrics = %{} -> json(conn, metrics)
       nil -> json(conn, [])
     end
   end
 
   def create(conn, params) do
-    Dispatcher.handle_event(conn.assigns[:user].id, params["events"])
+    Metrics.dispatch(conn.assigns[:user].id, params["events"])
 
     conn
     |> put_status(202)
