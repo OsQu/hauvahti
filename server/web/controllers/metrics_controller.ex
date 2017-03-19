@@ -6,6 +6,13 @@ defmodule Hauvahti.MetricsController do
 
   plug :authenticate
 
+  def index(conn, _params) do
+    case Dispatcher.metrics(Dispatcher, conn.assigns[:user].id) do
+      metrics = %{} -> json(conn, metrics)
+      nil -> json(conn, [])
+    end
+  end
+
   def create(conn, params) do
     Dispatcher.dispatch(Dispatcher, conn.assigns[:user].id, params["events"])
 

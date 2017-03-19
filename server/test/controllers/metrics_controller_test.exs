@@ -47,4 +47,34 @@ defmodule Hauvahti.MetricsControllerTest do
       assert metrics == %{"volume" => [10,20,10], "humidity" => [30, 10]}
     end
   end
+
+  describe "fetching metrics" do
+    test "returning events for user", %{token: token} do
+      events = Enum.join([
+        "volume=10",
+        "volume=20",
+        "humidity=10",
+        "volume=10",
+        "humidity=30"
+      ], ",")
+
+      build_conn()
+      |> post(metrics_path(build_conn(), :create, token), events: events)
+      |> json_response(202)
+
+      response = build_conn()
+      |> get(metrics_path(build_conn(), :index, token))
+      |> json_response(200)
+
+      assert response == %{"volume" => [10,20,10], "humidity" => [30,10]}
+    end
+
+    test "returning [] for empty user", %{token: token} do
+      response = build_conn()
+      |> get(metrics_path(build_conn(), :index, token))
+      |> json_response(200)
+
+      assert response == []
+    end
+  end
 end
