@@ -2,7 +2,7 @@ defmodule Hauvahti.MetricsControllerTest do
   use Hauvahti.ConnCase
 
   alias Hauvahti.{Repo, User}
-  alias Hauvahti.Metrics.Dispatcher
+  alias Hauvahti.Metrics.Store
 
   setup do
     token = "user_token"
@@ -43,7 +43,7 @@ defmodule Hauvahti.MetricsControllerTest do
       |> post(metrics_path(build_conn(), :create, token), events: events)
       |> json_response(202)
 
-      metrics = Dispatcher.metrics(Dispatcher, user.id)
+      metrics = Store.metrics(Store, user.id)
       assert metrics == %{"volume" => [10,20,10], "humidity" => [30, 10]}
     end
   end

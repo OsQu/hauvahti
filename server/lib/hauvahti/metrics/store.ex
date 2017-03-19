@@ -1,6 +1,6 @@
 # NOTE: This could have been achieved also with Phoenix channels, but using
 #       bare OTP constructs is more educational
-defmodule Hauvahti.Metrics.Dispatcher do
+defmodule Hauvahti.Metrics.Store do
   use GenServer
 
   def start_link(name) do
@@ -19,7 +19,6 @@ defmodule Hauvahti.Metrics.Dispatcher do
       {:error, _ } -> nil
     end
   end
-
   ## Server callbacks
 
   def init(:ok) do
