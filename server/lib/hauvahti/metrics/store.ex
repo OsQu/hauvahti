@@ -9,8 +9,8 @@ defmodule Hauvahti.Metrics.Store do
 
   ## Client actions
 
-  def dispatch(server, user, metrics) do
-    GenServer.cast(server, {:dispatch_metrics, user, metrics})
+  def dispatch(server, user, events) do
+    GenServer.cast(server, {:store_events, user, events})
   end
 
   def metrics(server, user) do
@@ -29,18 +29,18 @@ defmodule Hauvahti.Metrics.Store do
     {:reply, metrics_for(metrics_buckets, user), metrics_buckets}
   end
 
-  def handle_cast({:dispatch_metrics, user, metrics}, metrics_buckets) do
+  def handle_cast({:store_events, user, events}, metrics_buckets) do
     metrics_buckets = ensure_metrics_bucket(metrics_buckets, user)
 
     metrics_buckets
     |> Map.get(user)
-    |> store_metrics(metrics)
+    |> store_events(events)
 
     {:noreply, metrics_buckets}
   end
 
-  defp store_metrics(metrics_bucket, metrics) do
-    Hauvahti.Metrics.Bucket.register(metrics_bucket, metrics)
+  defp store_events(metrics_bucket, events) do
+    Hauvahti.Metrics.Bucket.register(metrics_bucket, events)
   end
 
   defp ensure_metrics_bucket(metrics_buckets, user) do
