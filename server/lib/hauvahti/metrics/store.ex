@@ -19,36 +19,54 @@ defmodule Hauvahti.Metrics.Store do
       {:error, _ } -> nil
     end
   end
+
   ## Server callbacks
 
   def init(:ok) do
-    {:ok, %{}}
+    {:ok, %{metrics_buckets: %{}, alert_handlers: %{}}}
   end
 
-  def handle_call({:get_metrics, user}, _from, metrics_buckets) do
-    {:reply, metrics_for(metrics_buckets, user), metrics_buckets}
+  def handle_call({:get_metrics, user}, _from, resources) do
+    {:reply, metrics_for(resources[:metrics_buckets], user), resources}
   end
 
-  def handle_cast({:store_events, user, events}, metrics_buckets) do
-    metrics_buckets = ensure_metrics_bucket(metrics_buckets, user)
+  def handle_cast(
+    {:store_events, user, events},
+    %{metrics_buckets: metrics_buckets, alert_handlers: alert_handlers}
+  ) do
+    metrics_buckets = ensure_resource(metrics_buckets, user, fn ->
+      {:ok, metric_bucket} = Hauvahti.Metrics.Bucket.start_link
+      metric_bucket
+    end)
 
-    metrics_buckets
-    |> Map.get(user)
-    |> store_events(events)
+    alert_handlers = ensure_resource(alert_handlers, user, fn ->
+      :do_smth
+    end)
 
-    {:noreply, metrics_buckets}
+    with parsed_events <- String.split(events, ","),
+         metrics_bucket <- Map.get(metrics_buckets, user),
+         alert_handler <- Map.get(alert_handlers, user)
+    do
+      store_events(metrics_bucket, parsed_events)
+      notify_alert(alert_handler, parsed_events)
+    end
+
+    {:noreply, %{metrics_buckets: metrics_buckets, alert_handlers: alert_handlers}}
   end
 
   defp store_events(metrics_bucket, events) do
     Hauvahti.Metrics.Bucket.register(metrics_bucket, events)
   end
 
-  defp ensure_metrics_bucket(metrics_buckets, user) do
-    case Map.fetch(metrics_buckets, user) do
-      {:ok, _} -> metrics_buckets
+  defp notify_alert(alert, events) do
+
+  end
+
+  def ensure_resource(resource, user, init_fn) do
+    case Map.fetch(resource, user) do
+      {:ok, _} -> resource
       :error ->
-        {:ok, metrics_bucket} = Hauvahti.Metrics.Bucket.start_link
-        Map.put(metrics_buckets, user, metrics_bucket)
+        Map.put(resource, user, init_fn.())
     end
   end
 

@@ -3,11 +3,6 @@ defmodule Hauvahti.Metrics.Bucket do
     Agent.start_link(fn -> %{} end)
   end
 
-  def register(metrics_bucket, metrics) when is_bitstring(metrics) do
-    register(metrics_bucket, String.split(metrics, ","))
-    metrics_bucket
-  end
-
   def register(metrics_bucket, metrics) when is_list(metrics) do
     for metric <- metrics, do: register_event(metrics_bucket, parse_metric(metric))
     metrics_bucket

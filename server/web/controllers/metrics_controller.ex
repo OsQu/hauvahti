@@ -2,7 +2,7 @@ defmodule Hauvahti.MetricsController do
   use Hauvahti.Web, :controller
 
   alias Hauvahti.User
-  alias Hauvahti.Metrics.Store
+  alias Hauvahti.Metrics.{Store,Dispatcher}
 
   plug :authenticate
 
@@ -14,7 +14,7 @@ defmodule Hauvahti.MetricsController do
   end
 
   def create(conn, params) do
-    Store.save(Store, conn.assigns[:user].id, params["events"])
+    Dispatcher.handle_event(conn.assigns[:user].id, params["events"])
 
     conn
     |> put_status(202)

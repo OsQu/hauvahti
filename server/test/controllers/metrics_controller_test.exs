@@ -14,7 +14,7 @@ defmodule Hauvahti.MetricsControllerTest do
   describe "authentication for POST /metrics" do
     test "allows requests with correct token", %{token: token} do
       response = build_conn()
-      |> post(metrics_path(build_conn(), :create, token))
+      |> post(metrics_path(build_conn(), :create, token), events: "sound=10")
       |> json_response(202)
 
       assert response == %{"message" => "Accepted"}
