@@ -34,15 +34,17 @@ defmodule Hauvahti.MetricsControllerTest do
       events = Enum.join([
         "volume=10",
         "volume=20",
-        "volume=10"
-      ], "\n")
+        "humidity=10",
+        "volume=10",
+        "humidity=30"
+      ], ",")
 
       build_conn()
       |> post(metrics_path(build_conn(), :create, token), events: events)
       |> json_response(202)
 
       metrics = Dispatcher.metrics(Dispatcher, user.id)
-      assert metrics == %{"volume" => [10,20,10]}
+      assert metrics == %{"volume" => [10,20,10], "humidity" => [30, 10]}
     end
   end
 end

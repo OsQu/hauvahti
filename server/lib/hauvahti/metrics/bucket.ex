@@ -4,7 +4,7 @@ defmodule Hauvahti.Metrics.Bucket do
   end
 
   def register(metrics_bucket, metrics) when is_bitstring(metrics) do
-    register(metrics_bucket, String.split(metrics, "\n"))
+    register(metrics_bucket, String.split(metrics, ","))
     metrics_bucket
   end
 

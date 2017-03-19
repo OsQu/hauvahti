@@ -28,7 +28,7 @@ defmodule Hauvahti.Metrics.BucketTest do
 
   test "registering multiple events at once", %{bucket: bucket} do
     events = ["sound=10", "volume=20", "sound=10"]
-    Bucket.register(bucket, Enum.join(events, "\n"))
+    Bucket.register(bucket, Enum.join(events, ","))
 
     assert Bucket.get(bucket, "sound") == [10, 10]
     assert Bucket.get(bucket, "volume") == [20]
