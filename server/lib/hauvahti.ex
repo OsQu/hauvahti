@@ -8,12 +8,9 @@ defmodule Hauvahti do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # Start the Ecto repository
       supervisor(Hauvahti.Repo, []),
-      # Start the endpoint when the application starts
       supervisor(Hauvahti.Endpoint, []),
-      # Start your own worker by calling: Hauvahti.Worker.start_link(arg1, arg2, arg3)
-      # worker(Hauvahti.Worker, [arg1, arg2, arg3]),
+      worker(Hauvahti.Metrics.Dispatcher, [Hauvahti.Metrics.Dispatcher])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

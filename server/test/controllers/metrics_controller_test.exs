@@ -2,11 +2,12 @@ defmodule Hauvahti.MetricsControllerTest do
   use Hauvahti.ConnCase
 
   alias Hauvahti.{Repo, User}
+  alias Hauvahti.Metrics.Dispatcher
 
   setup do
     token = "user_token"
-    Repo.insert(%User{name: "Test User", token: token})
-    {:ok, token: token}
+    {:ok , user} = Repo.insert(%User{name: "Test User", token: token})
+    {:ok, token: token, user: user}
   end
 
 
@@ -28,6 +29,20 @@ defmodule Hauvahti.MetricsControllerTest do
     end
   end
 
-  describe "sending metrics to submodule" do
+  describe "dispatching metrics" do
+    test "sends metrics to metrics dispatcher", %{token: token, user: user} do
+      events = Enum.join([
+        "volume=10",
+        "volume=20",
+        "volume=10"
+      ], "\n")
+
+      build_conn()
+      |> post(metrics_path(build_conn(), :create, token), events: events)
+      |> json_response(202)
+
+      metrics = Dispatcher.metrics(Dispatcher, user.id)
+      assert metrics == %{"volume" => [10,20,10]}
+    end
   end
 end

@@ -2,10 +2,13 @@ defmodule Hauvahti.MetricsController do
   use Hauvahti.Web, :controller
 
   alias Hauvahti.User
+  alias Hauvahti.Metrics.Dispatcher
 
   plug :authenticate
 
-  def create(conn, _params) do
+  def create(conn, params) do
+    Dispatcher.dispatch(Dispatcher, conn.assigns[:user].id, params["events"])
+
     conn
     |> put_status(202)
     |> json(%{"message": "Accepted"})
