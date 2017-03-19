@@ -1,4 +1,4 @@
-defmodule Hauvahti.MetricsBucket do
+defmodule Hauvahti.Metrics.Bucket do
   def start_link do
     Agent.start_link(fn -> %{} end)
   end

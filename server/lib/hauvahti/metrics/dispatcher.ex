@@ -1,6 +1,6 @@
 # NOTE: This could have been achieved also with Phoenix channels, but using
 #       bare OTP constructs is more educational
-defmodule Hauvahti.MetricsDispatcher do
+defmodule Hauvahti.Metrics.Dispatcher do
   use GenServer
 
   def start_link do
@@ -43,14 +43,14 @@ defmodule Hauvahti.MetricsDispatcher do
   end
 
   defp store_metrics(metrics_bucket, metrics) do
-    Hauvahti.MetricsBucket.register(metrics_bucket, metrics)
+    Hauvahti.Metrics.Bucket.register(metrics_bucket, metrics)
   end
 
   defp ensure_metrics_bucket(metrics_buckets, user) do
     case Map.fetch(metrics_buckets, user) do
       {:ok, metrics_bucket} -> metrics_bucket
       :error ->
-        {:ok, metrics_bucket} = Hauvahti.MetricsBucket.start_link
+        {:ok, metrics_bucket} = Hauvahti.Metrics.Bucket.start_link
         Map.put(metrics_buckets, user, metrics_bucket)
     end
   end
@@ -58,7 +58,7 @@ defmodule Hauvahti.MetricsDispatcher do
   defp metrics_for(metrics_buckets, user) do
     with {:ok, metrics_bucket} <- Map.fetch(metrics_buckets, user)
     do
-      {:ok, Hauvahti.MetricsBucket.get_all(metrics_bucket)}
+      {:ok, Hauvahti.Metrics.Bucket.get_all(metrics_bucket)}
     else
       :error -> {:error, "No metrics stored for user: #{user}"}
     end
