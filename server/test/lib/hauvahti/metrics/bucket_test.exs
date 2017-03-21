@@ -8,37 +8,38 @@ defmodule Hauvahti.Metrics.BucketTest do
     {:ok, bucket: bucket}
   end
 
-  test "registering events for new metric type", %{bucket: bucket} do
-    returned_events = bucket
-    |> Bucket.register(["sound=10"])
-    |> Bucket.get("sound")
+  test "registering new event", %{bucket: bucket} do
+    events = bucket
+    |> Bucket.register({"volume", 10})
+    |> Bucket.get("volume")
 
-    assert returned_events == [10]
+    assert events == [10]
   end
 
-  test "registering events for existing metrics type", %{bucket: bucket} do
-    bucket
-    |> Bucket.register(["sound=10", "sound=20", "sound=5"])
+  test "registering existing event", %{bucket: bucket} do
+    events = bucket
+    |> Bucket.register({"volume", 10})
+    |> Bucket.register({"volume", 20})
+    |> Bucket.get("volume")
 
-    returned_events = Bucket.get(bucket, "sound")
-    assert returned_events == [5,20,10]
-  end
-
-  test "fetching events for non-existing metrics type", %{bucket: bucket} do
-    returned_events = Bucket.get(bucket, "foobar")
-    assert returned_events == nil
+    assert events == [20, 10]
   end
 
   test "fetching all events", %{bucket: bucket} do
-    bucket
-    |> Bucket.register(["sound=10"])
-    |> Bucket.register(["humidness=5"])
-    |> Bucket.register(["sound=8"])
+    events = bucket
+    |> Bucket.register({"volume", 10})
+    |> Bucket.register({"humidity", 20})
+    |> Bucket.register({"volume", 20})
+    |> Bucket.get_all
 
-    all_events = Bucket.get_all(bucket)
-    assert all_events == %{
-      "sound" => [8, 10],
-      "humidness" => [5]
+    assert events == %{
+      "volume" => [20, 10],
+      "humidity" => [20]
     }
+  end
+
+  test "fetching non-existing metrics type", %{bucket: bucket} do
+    events = Bucket.get(bucket, "foobar")
+    assert events == nil
   end
 end
