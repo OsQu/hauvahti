@@ -10,8 +10,9 @@ defmodule Hauvahti do
     children = [
       supervisor(Hauvahti.Repo, []),
       supervisor(Hauvahti.Endpoint, []),
+      worker(GenEvent, [[name: Hauvahti.Metrics.Events]]),
       worker(Hauvahti.Metrics.Store, [Hauvahti.Metrics.Store]),
-      worker(GenEvent, [[name: Hauvahti.Metrics.Events]])
+      worker(Hauvahti.Metrics.Parser, [Hauvahti.Metrics.Parser, Hauvahti.Metrics.Events])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

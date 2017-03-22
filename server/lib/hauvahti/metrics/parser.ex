@@ -11,8 +11,9 @@ defmodule Hauvahti.Metrics.Parser do
 
   def handle_cast({:parse_event, user, events}, event_channel) do
     Enum.each(parse_events(events), fn ([key, value]) ->
-      GenEvent.notify(event_channel, {:incoming_event, user, %{key => value}})
+      GenEvent.notify(event_channel, {:incoming_event, user, {key, value}})
     end)
+
     {:noreply, event_channel}
   end
 

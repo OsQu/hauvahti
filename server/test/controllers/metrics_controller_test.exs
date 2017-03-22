@@ -1,5 +1,6 @@
 defmodule Hauvahti.MetricsControllerTest do
   use Hauvahti.ConnCase
+  import Hauvahti.PollTimeout
 
   alias Hauvahti.{Repo, User}
   alias Hauvahti.Metrics.Store
@@ -29,8 +30,8 @@ defmodule Hauvahti.MetricsControllerTest do
     end
   end
 
-  describe "dispatching metrics" do
-    test "sends metrics to metrics dispatcher", %{token: token, user: user} do
+  describe "sending metrics" do
+    test "storing metrics", %{token: token, user: user} do
       events = Enum.join([
         "volume=10",
         "volume=20",
@@ -43,8 +44,7 @@ defmodule Hauvahti.MetricsControllerTest do
       |> post(metrics_path(build_conn(), :create, token), events: events)
       |> json_response(202)
 
-      metrics = Store.metrics(Store, user.id)
-      assert metrics == %{"volume" => [10,20,10], "humidity" => [30, 10]}
+      assert_timeout Store.metrics(Store, user.id) == %{"volume" => [10,20,10], "humidity" => [30, 10]}
     end
   end
 
@@ -62,11 +62,11 @@ defmodule Hauvahti.MetricsControllerTest do
       |> post(metrics_path(build_conn(), :create, token), events: events)
       |> json_response(202)
 
-      response = build_conn()
-      |> get(metrics_path(build_conn(), :index, token))
-      |> json_response(200)
-
-      assert response == %{"volume" => [10,20,10], "humidity" => [30,10]}
+      assert_timeout(
+        build_conn()
+        |> get(metrics_path(build_conn(), :index, token))
+        |> json_response(200) == %{"volume" => [10,20,10], "humidity" => [30,10]}
+      )
     end
 
     test "returning [] for empty user", %{token: token} do

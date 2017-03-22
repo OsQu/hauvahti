@@ -9,8 +9,8 @@ defmodule Hauvahti.Metrics.Store do
 
   ## Client actions
 
-  def save(server, user, events) do
-    GenServer.cast(server, {:store_events, user, events})
+  def save(server, user, event) do
+    GenServer.cast(server, {:store_event, user, event})
   end
 
   def metrics(server, user) do
@@ -23,6 +23,8 @@ defmodule Hauvahti.Metrics.Store do
   ## Server callbacks
 
   def init(:ok) do
+    # TODO: Handle failures, add_mon_handler or smth?
+    GenEvent.add_handler(Hauvahti.Metrics.Events, Hauvahti.Metrics.StoreListener, [])
     {:ok, %{}}
   end
 
@@ -31,21 +33,19 @@ defmodule Hauvahti.Metrics.Store do
   end
 
   def handle_cast(
-    {:store_events, user, events}, metrics_buckets
+    {:store_event, user, event}, metrics_buckets
   ) do
     metrics_buckets = ensure_resources(metrics_buckets, user)
 
-    with parsed_events <- String.split(events, ","),
-         metrics_bucket <- Map.get(metrics_buckets, user)
-    do
-      store_events(metrics_bucket, parsed_events)
-    end
+    metrics_buckets
+    |> Map.get(user)
+    |> store_event(event)
 
     {:noreply, metrics_buckets}
   end
 
-  defp store_events(metrics_bucket, events) do
-    Hauvahti.Metrics.Bucket.register(metrics_bucket, events)
+  defp store_event(metrics_bucket, event) do
+    Hauvahti.Metrics.Bucket.register(metrics_bucket, event)
   end
 
   def ensure_resources(metrics_buckets, user) do
@@ -53,7 +53,6 @@ defmodule Hauvahti.Metrics.Store do
       {:ok, _} -> metrics_buckets
       :error ->
         {:ok, metric_bucket} = Hauvahti.Metrics.Bucket.start_link
-        # TODO: Attach event handler
         Map.put(metrics_buckets, user, metric_bucket)
     end
   end
