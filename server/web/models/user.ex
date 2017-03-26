@@ -4,6 +4,8 @@ defmodule Hauvahti.User do
   schema "users" do
     field :name, :string
     field :token, :string
+
+    has_many :alert_strategies, Hauvahti.AlertStrategy
   end
 
   def changeset(struct, params \\ %{}) do
