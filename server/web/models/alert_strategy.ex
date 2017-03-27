@@ -12,8 +12,7 @@ defmodule Hauvahti.AlertStrategy do
   def changeset(alert_strategy, params \\ %{}) do
     alert_strategy
     |> cast(params, [:type, :parameters, :enabled, :user_id])
-    |> validate_required([:type]) # TODO: Custom validations for each type?
-    |> validate_inclusion(:type, ["threshold"])
+    |> validate_required([:type])
     |> assoc_constraint(:user)
   end
 end

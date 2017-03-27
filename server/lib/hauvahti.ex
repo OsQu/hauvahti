@@ -12,7 +12,8 @@ defmodule Hauvahti do
       supervisor(Hauvahti.Endpoint, []),
       worker(GenEvent, [[name: Hauvahti.Metrics.Events]]),
       worker(Hauvahti.Metrics.Store, [Hauvahti.Metrics.Store]),
-      worker(Hauvahti.Metrics.Parser, [Hauvahti.Metrics.Parser, Hauvahti.Metrics.Events])
+      worker(Hauvahti.Metrics.Parser, [Hauvahti.Metrics.Parser, Hauvahti.Metrics.Events]),
+      worker(Hauvahti.Alerts.StrategyMonitor, [Hauvahti.Alerts.StrategyMonitor, Hauvahti.Metrics.Events])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
